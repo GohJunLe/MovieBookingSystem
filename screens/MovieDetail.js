@@ -15,6 +15,8 @@ import axios from "axios";
 import LinearGradient from "react-native-linear-gradient";
 import { COLORS, SIZES, FONTS, icons } from "../constants";
 
+import YoutubePlayer from "react-native-youtube-iframe";
+
 const MovieDetail = ({ route, navigation }) => {
   const { selectedMovie } = route.params;
 
@@ -27,7 +29,7 @@ const MovieDetail = ({ route, navigation }) => {
   const apiReq = useCallback(async () => {
     const [resp, similarResp, castCrew] = await Promise.all([
       axios.get(
-        `https://api.themoviedb.org/3/movie/${selectedMovie}?api_key=${apiKey}&language=en-US`
+        `https://api.themoviedb.org/3/movie/${selectedMovie}?api_key=${apiKey}&language=en-US&append_to_response=videos`
       ),
       axios.get(
         `https://api.themoviedb.org/3/movie/${selectedMovie}/recommendations?api_key=${apiKey}&language=en-US`
@@ -231,7 +233,7 @@ const MovieDetail = ({ route, navigation }) => {
               ...FONTS.h4,
             }}
           >
-            {Math.round( data.movieDetails.vote_average * 10 ) / 10}
+            {Math.round(data.movieDetails.vote_average * 10) / 10}
           </Text>
         </View>
       </View>
@@ -262,25 +264,25 @@ const MovieDetail = ({ route, navigation }) => {
         <View>
           <View style={{ flex: 1, flexDirection: "row" }}>
             {/* release date */}
-            <View style={{ flex: 1 }}>
-              <Text>
-                <Text style={{ color: COLORS.white, ...FONTS.h4 }}>
+            <View style={{ flex: 1}}>
+
+                <Text style={{ color: COLORS.white, ...FONTS.h3 }}>
                   Release date:
                 </Text>
-                <Text style={{ color: COLORS.lightGray, ...FONTS.body4 }}>
-                  {" " + data.movieDetails.release_date}
-                </Text>
+                <Text style={{ color: COLORS.lightGray, ...FONTS.body3 }}>
+                  {data.movieDetails.release_date}
               </Text>
+
             </View>
 
             {/* duration */}
-            <View style={{ flex: 1 }}>
-              <Text style={{ textAlign: "right" }}>
-                <Text style={{ color: COLORS.white, ...FONTS.h4 }}>
-                  Duration:
+            <View style={{ flex: 1}}>
+              <Text  style={{ textAlign: "right" }}>
+                <Text style={{ color: COLORS.white, ...FONTS.h3 }}>
+                  Duration:{"\n"}
                 </Text>
-                <Text style={{ color: COLORS.lightGray, ...FONTS.body4 }}>
-                  {` ${hours} hr ${minutes} min`}
+                <Text style={{ color: COLORS.lightGray, ...FONTS.body3 }}>
+                  {`${hours} hr ${minutes} min`}
                 </Text>
               </Text>
             </View>
@@ -293,8 +295,8 @@ const MovieDetail = ({ route, navigation }) => {
               flexDirection: "column",
             }}
           >
-            <Text style={{ color: COLORS.white, ...FONTS.h4 }}>Overview</Text>
-            <Text style={{ color: COLORS.lightGray, ...FONTS.body4 }}>
+            <Text style={{ color: COLORS.white, ...FONTS.h3 }}>Overview</Text>
+            <Text style={{ color: COLORS.lightGray, ...FONTS.body3 }}>
               {data.movieDetails.overview}
             </Text>
           </View>
@@ -306,13 +308,23 @@ const MovieDetail = ({ route, navigation }) => {
               flexDirection: "column",
             }}
           >
-            <Text style={{ color: COLORS.white, ...FONTS.h4 }}>Trailer</Text>
-            
-            <Text style={{ ...FONTS.h1 }}>{"\n"}</Text>
+            <Text style={{ color: COLORS.white, ...FONTS.h3 }}>Trailer</Text>
+            <YoutubePlayer height={300} play={true} videoId={getTrailer()} />
           </View>
         </View>
       </View>
     );
+  }
+
+  function getTrailer() {
+    if (data.movieDetails.videos != null) {
+      const video = data.movieDetails.videos.results;
+      for (var i = 0; i < video.length; i++) {
+        if (video[i].type == "Trailer") {
+          return video[i].key;
+        }
+      }
+    }
   }
 
   function bookNowBtn() {
