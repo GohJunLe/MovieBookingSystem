@@ -10,12 +10,13 @@ import {
   TouchableWithoutFeedback,
   ImageBackground,
   Animated,
+  Dimensions,
+  RefreshControl
 } from "react-native";
 import { color } from "react-native-reanimated";
 import { Colors } from "react-native/Libraries/NewAppScreen";
 // import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import {
-  //dummyData,
   icons,
   images,
   theme,
@@ -23,8 +24,8 @@ import {
   SIZES,
   FONTS,
 } from "../constants";
-import {/*popularMovie,nowSPlayingMovie*/movie} from "../constants/dummy";
-import { Profiles, ProgressBar } from "../components";
+import {movie} from "../constants/dummy";
+import { Profiles, AppIcon, Loading } from "../components";
 const Home = ({ navigation }) => {
   const newSeasonScrollX = React.useRef(new Animated.Value(0)).current;
 
@@ -42,8 +43,9 @@ const Home = ({ navigation }) => {
       top10Popular.push(item);
     }
   })
-
+  console.log("tt")
   function renderHeader() {
+    const windowWidth = Dimensions.get('window').width;
     return (
       <View
         style={{
@@ -53,7 +55,7 @@ const Home = ({ navigation }) => {
           paddingHorizontal: SIZES.padding,
         }}
       >
-        {/* first icon */}
+        {/* profile icon */}
         <TouchableOpacity
           style={{
             alignItems: "center",
@@ -61,7 +63,9 @@ const Home = ({ navigation }) => {
             width: 50,
             height: 50,
           }}
-          onPress={() => console.log("profile")}
+          // onPress={() => navigation.navigate("GetStarted")}
+          // onPress={() => navigation.navigate("SignIn",{previousScreen:"Home"})}
+          onPress={() => navigation.push("SignIn")}
         >
           <Image
             source={images.profile_photo}
@@ -72,21 +76,23 @@ const Home = ({ navigation }) => {
             }}
           />
         </TouchableOpacity>
-        {/* screen mirror */}
+        {/* cinema logo */}
         <TouchableOpacity
           style={{
-            justifyContent: "center",
             alignItems: "center",
+            justifyContent: "center",
             width: 50,
             height: 50,
           }}
         >
           <Image
-            source={icons.airplay}
+            source={AppIcon}
+            resizeMode="contain"
             style={{
-              width: 25,
-              height: 25,
-              tintColor: COLORS.primary,
+              width: 200,
+              marginTop:5,
+              marginRight:(windowWidth/2+100)
+              // marginRight:50
             }}
           />
         </TouchableOpacity>
@@ -126,7 +132,8 @@ const Home = ({ navigation }) => {
                   alignItems: "center",
                   justifyContent: "center",
                 }}
-              >
+              > 
+               <Loading size="large" isLoading={isLoading} style={{position:"absolute",alignSelf:"center",top:"50%"}}/>
                 <ImageBackground
                   resizeMode="cover"
                   source={{uri: "https://image.tmdb.org/t/p/w500"+item.poster_path,}}
@@ -149,6 +156,7 @@ const Home = ({ navigation }) => {
                       flexDirection: "row",
                     }}
                   >
+                    
                     {/* Book Now */}
                     <View
                       style={{
@@ -289,6 +297,7 @@ const Home = ({ navigation }) => {
                         : 0,
                   }}
                 >
+                  <Loading size="large" Loading={isLoading} style={{position:"absolute",alignSelf:"center",top:"30%"}}/>
                   {/* thumbnail */}
                   <Image
                     source={{uri: "https://image.tmdb.org/t/p/w500"+item.poster_path,}}

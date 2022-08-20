@@ -1,34 +1,32 @@
-import React from 'react';
-import { MovieDetail } from "./screens";
+import React from "react";
+import { MovieDetail, SignIn, GetStarted } from "./screens";
 import { createStackNavigator } from "@react-navigation/stack";
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer } from "@react-navigation/native";
 
 import Tabs from "./navigation/tabs";
 
 const Stack = createStackNavigator();
 
 const App = () => {
-
   return (
     <NavigationContainer>
       <Stack.Navigator
         screenOptions={{
-          headerShown: false
+          headerShown: false,
         }}
-        initialRouteName={'Home'}
+        initialRouteName={"Home"}
       >
-        <Stack.Screen
-          name="Home"
-          component={Tabs}
-        />
+        <Stack.Screen name="Home" component={Tabs} />
 
-        <Stack.Screen
-          name="MovieDetail"
-          component={MovieDetail}
-        />
+        <Stack.Screen name="MovieDetail" component={MovieDetail} />
+
+        <Stack.Screen name="GetStarted" component={Tabs} />
+
+        <Stack.Screen name="SignIn" component={SignIn} />
       </Stack.Navigator>
+      
     </NavigationContainer>
-  )
-}
+  );
+};
 
 export default App;
