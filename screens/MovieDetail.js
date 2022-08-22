@@ -17,7 +17,6 @@ import LinearGradient from "react-native-linear-gradient";
 import { COLORS, SIZES, FONTS, icons } from "../constants";
 
 import YoutubePlayer from "react-native-youtube-iframe";
-import { loadPartialConfig } from "@babel/core";
 import { Loading } from "../components";
 
 const MovieDetail = ({ route, navigation }) => {
@@ -290,6 +289,7 @@ const MovieDetail = ({ route, navigation }) => {
               <Text style={{ color: COLORS.lightGray, ...FONTS.body3 }}>
                 {data.movieDetails.release_date}
               </Text>
+
             </View>
 
             {/* duration */}
