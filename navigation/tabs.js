@@ -1,8 +1,8 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 
-import { Home } from "../screens"
-import { COLORS, icons } from "../constants"
+import { Home,GetStarted } from "../screens"
+import { COLORS } from "../constants"
 
 import { TabIcon } from "../components"
 
@@ -14,7 +14,6 @@ const Tabs = () => {
             tabBarOptions={{
                 labelPosition: "below-icon",
                 style: {
-                    position: 'absolute',
                     backgroundColor: COLORS.black,
                     borderTopColor: "transparent",
                     height: 60
@@ -28,7 +27,7 @@ const Tabs = () => {
                     tabBarIcon: ({ focused }) => (
                         <TabIcon
                             focused={focused}
-                            icon={icons.home}
+                            icon="home"
                         />
                     )
                 }}
@@ -40,7 +39,7 @@ const Tabs = () => {
                     tabBarIcon: ({ focused }) => (
                         <TabIcon
                             focused={focused}
-                            icon={icons.play_button}
+                            icon="play-circle"
                         />
                     )
                 }}
@@ -52,19 +51,19 @@ const Tabs = () => {
                     tabBarIcon: ({ focused }) => (
                         <TabIcon
                             focused={focused}
-                            icon={icons.search}
+                            icon="search"
                         />
                     )
                 }}
             />
             <Tab.Screen
                 name="Profile"
-                component={Home}
+                component={GetStarted}
                 options={{
                     tabBarIcon: ({ focused }) => (
                         <TabIcon
                             focused={focused}
-                            icon={icons.profile}
+                            icon="person"
                         />
                     )
                 }}

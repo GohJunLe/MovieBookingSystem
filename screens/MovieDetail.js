@@ -7,6 +7,7 @@ import {
   ScrollView,
   FlatList,
   TouchableOpacity,
+  Dimensions,
 } from "react-native";
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
@@ -16,16 +17,18 @@ import LinearGradient from "react-native-linear-gradient";
 import { COLORS, SIZES, FONTS, icons } from "../constants";
 
 import YoutubePlayer from "react-native-youtube-iframe";
+import { Loading } from "../components";
 
 const MovieDetail = ({ route, navigation }) => {
   const { selectedMovie } = route.params;
-
   const [data, setData] = useState({
     movieDetails: [],
     similarMovies: [],
     castCrew: [],
   });
   const apiKey = "024d69b581633d457ac58359146c43f6";
+
+  const [isLoading, setLoading] = useState(true);
   const apiReq = useCallback(async () => {
     const [resp, similarResp, castCrew] = await Promise.all([
       axios.get(
@@ -37,7 +40,7 @@ const MovieDetail = ({ route, navigation }) => {
       axios.get(
         `https://api.themoviedb.org/3/movie/${selectedMovie}/credits?api_key=${apiKey}&language=en-US`
       ),
-    ]);
+    ]).finally(() => setLoading(false));
     setData({
       movieDetails: resp.data,
       similarMovies: similarResp.data.results,
@@ -49,8 +52,14 @@ const MovieDetail = ({ route, navigation }) => {
     apiReq();
   }, [apiReq]);
 
+  console.log("test","test")
+
   let hours = Math.trunc(data.movieDetails.runtime / 60);
   let minutes = data.movieDetails.runtime % 60;
+
+  const [isPlay, setPlay] = useState(false);
+  const [test, setTest] = useState(0);
+  const [pos,setPos]=useState(0);
 
   function renderHeaderBar() {
     return (
@@ -259,25 +268,33 @@ const MovieDetail = ({ route, navigation }) => {
           marginTop: SIZES.padding,
           justifyContent: "space-around",
         }}
+        onLayout={(event) => {
+          const layout = event.nativeEvent.layout;
+          setTest(layout.y);
+          console.log("y1:", test);
+        }}
       >
         {/* content */}
-        <View>
+        <View onLayout={(event) => {
+              const layout = event.nativeEvent.layout;
+              setTest(layout.y+test);
+              console.log("y2:", test);
+            }}>
           <View style={{ flex: 1, flexDirection: "row" }}>
             {/* release date */}
-            <View style={{ flex: 1}}>
-
-                <Text style={{ color: COLORS.white, ...FONTS.h3 }}>
-                  Release date:
-                </Text>
-                <Text style={{ color: COLORS.lightGray, ...FONTS.body3 }}>
-                  {data.movieDetails.release_date}
+            <View style={{ flex: 1 }}>
+              <Text style={{ color: COLORS.white, ...FONTS.h3 }}>
+                Release date:
+              </Text>
+              <Text style={{ color: COLORS.lightGray, ...FONTS.body3 }}>
+                {data.movieDetails.release_date}
               </Text>
 
             </View>
 
             {/* duration */}
-            <View style={{ flex: 1}}>
-              <Text  style={{ textAlign: "right" }}>
+            <View style={{ flex: 1 }}>
+              <Text style={{ textAlign: "right" }}>
                 <Text style={{ color: COLORS.white, ...FONTS.h3 }}>
                   Duration:{"\n"}
                 </Text>
@@ -307,9 +324,19 @@ const MovieDetail = ({ route, navigation }) => {
             style={{
               flexDirection: "column",
             }}
+            onLayout={(event) => {
+              const layout = event.nativeEvent.layout;
+              setTest(layout.y+test);
+              console.log("y3",test);
+            }}
           >
             <Text style={{ color: COLORS.white, ...FONTS.h3 }}>Trailer</Text>
-            <YoutubePlayer height={300} play={true} videoId={getTrailer()} />
+            <YoutubePlayer
+              height={300}
+              play={false}
+              videoId={getTrailer()}
+              webViewStyle={{ opacity: 0.99 }}
+            />
           </View>
         </View>
       </View>
@@ -333,8 +360,9 @@ const MovieDetail = ({ route, navigation }) => {
         <TouchableOpacity
           style={{
             height: 60,
-            width: "100%",
+            width: "90%",
             alignItems: "center",
+            alignSelf:"center",
             justifyContent: "center",
             marginBottom: Platform.OS === "ios" ? SIZES.padding * 2 : 0,
             backgroundColor: COLORS.primary,
@@ -342,7 +370,15 @@ const MovieDetail = ({ route, navigation }) => {
             position: "absolute",
             bottom: 0,
           }}
+          onPress={()=>console.log("book")}
         >
+          <View style={{flexDirection:"row"}}>
+          <icons.fontAwesome 
+          name="ticket"
+          color="white"
+          size={30}
+          style={{}}/>
+
           <Text
             style={{
               color: COLORS.white,
@@ -351,9 +387,26 @@ const MovieDetail = ({ route, navigation }) => {
           >
             Book Now
           </Text>
+          </View>
         </TouchableOpacity>
       </View>
     );
+  }
+
+  function loadingScreen(){
+    if(isLoading){
+      return(<Loading
+        size={50}
+        isLoading={isLoading}
+        style={{
+          position: "absolute",
+          alignSelf: "center", 
+          backgroundColor: COLORS.transparentBlack,
+          width: "100%",
+          height: "100%",
+        }}
+      />);
+    }
   }
 
   return (
@@ -361,8 +414,9 @@ const MovieDetail = ({ route, navigation }) => {
       <ScrollView
         //contentContainerStyle={{flex: 3, backgroundColor: COLORS.black }}
         style={{ backgroundColor: COLORS.black }}
+        onScroll={(event) => setPos(event.nativeEvent.contentOffset.y)}
       >
-        {/* header */}
+        {/* poster&name */}
         {renderHeaderSection()}
         {/* category&ratings */}
         {renderCategory()}
@@ -370,11 +424,14 @@ const MovieDetail = ({ route, navigation }) => {
         {/* themoviedetails */}
         {renderMovieDetail()}
       </ScrollView>
-      {/* header bar */}
-      {renderHeaderBar()}
 
       {/* button */}
       {bookNowBtn()}
+
+      {loadingScreen()}
+
+      {/* header bar */}
+      {renderHeaderBar()}
     </>
   );
 };

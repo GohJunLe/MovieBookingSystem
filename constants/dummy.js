@@ -58,4 +58,4 @@ const genreList=[
     }
     }
 
-export{/*popularMovie,nowPlayingMovie*/movie,getGenre};
+export{movie,getGenre};
