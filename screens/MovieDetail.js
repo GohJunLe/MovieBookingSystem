@@ -15,8 +15,10 @@ import axios from "axios";
 
 import LinearGradient from "react-native-linear-gradient";
 import { COLORS, SIZES, FONTS, icons } from "../constants";
+import { getResp, getSimilarResp, getCastCrew } from "../constants/api";
 
 import YoutubePlayer from "react-native-youtube-iframe";
+import { loadPartialConfig } from "@babel/core";
 import { Loading } from "../components";
 
 const MovieDetail = ({ route, navigation }) => {
@@ -32,13 +34,13 @@ const MovieDetail = ({ route, navigation }) => {
   const apiReq = useCallback(async () => {
     const [resp, similarResp, castCrew] = await Promise.all([
       axios.get(
-        `https://api.themoviedb.org/3/movie/${selectedMovie}?api_key=${apiKey}&language=en-US&append_to_response=videos`
+        getResp(selectedMovie)
       ),
       axios.get(
-        `https://api.themoviedb.org/3/movie/${selectedMovie}/recommendations?api_key=${apiKey}&language=en-US`
+        getSimilarResp(selectedMovie)
       ),
       axios.get(
-        `https://api.themoviedb.org/3/movie/${selectedMovie}/credits?api_key=${apiKey}&language=en-US`
+        getCastCrew(selectedMovie)
       ),
     ]).finally(() => setLoading(false));
     setData({
@@ -46,7 +48,7 @@ const MovieDetail = ({ route, navigation }) => {
       similarMovies: similarResp.data.results,
       castCrew: castCrew.data.cast,
     });
-  }, [selectedMovie, apiKey]);
+  }, [selectedMovie]);
 
   useEffect(() => {
     apiReq();
@@ -289,7 +291,6 @@ const MovieDetail = ({ route, navigation }) => {
               <Text style={{ color: COLORS.lightGray, ...FONTS.body3 }}>
                 {data.movieDetails.release_date}
               </Text>
-
             </View>
 
             {/* duration */}
