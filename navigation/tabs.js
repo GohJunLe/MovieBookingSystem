@@ -1,10 +1,11 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 
-import { Home,GetStarted } from "../screens"
+import { Home, GetStarted, SignUp } from "../screens"
 import { COLORS } from "../constants"
 
 import { TabIcon } from "../components"
+import DeviceStorage from "../database/deviceStorage"
 
 const Tab = createBottomTabNavigator()
 
@@ -58,7 +59,7 @@ const Tabs = () => {
             />
             <Tab.Screen
                 name="Profile"
-                component={GetStarted}
+                component={DeviceStorage.getData("signIn")?SignUp:GetStarted}
                 options={{
                     tabBarIcon: ({ focused }) => (
                         <TabIcon
