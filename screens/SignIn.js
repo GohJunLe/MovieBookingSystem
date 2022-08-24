@@ -11,21 +11,32 @@ import {
   Keyboard,
 } from "react-native";
 import React from "react";
-import { TextInput } from "react-native-gesture-handler";
+//import { TextInput } from "react-native-gesture-handler";
 import { COLORS, SIZES, FONTS, icons } from "../constants";
 import { AppIcon } from "../components";
+import signInAuth from "../accountAuth/signIn_auth"
+import HomeScreen from "../database/database_test";
+import { HelperText, TextInput} from 'react-native-paper';
 
-const SignIn = ({navigation }) => {
+const SignIn = ({ navigation }) => {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
+
   const [passwordVisible, setPasswordVisible] = React.useState(false);
-  // console.log("previousScreen:"+route.params.previousScreen);
+
+  React.useEffect(()=>{
+    const controller = new AbortController();
+    const signal = controller.signal;
+    return () => controller.abort();
+
+  },[])
+
   function backBtn() {
     return (
       <View
         style={{
           marginTop: Platform.OS === "ios" ? 40 : 20,
-          paddingHorizontal: SIZES.padding
+          paddingHorizontal: SIZES.padding,
         }}
       >
         <TouchableOpacity
@@ -60,42 +71,81 @@ const SignIn = ({navigation }) => {
     );
   }
 
-  function emailInput() {
+  // function emailInput() {
+  //   return (
+  //     <View style={styles.formContainer}>
+  //       <icons.ionicons
+  //         name="mail-outline"
+  //         size={25}
+  //         style={styles.textInputIcon}
+  //       />
+
+  //       <TextInput
+  //         placeholder="Email"
+  //         value={email}
+  //         onChangeText={setEmail}
+  //         keyboardType="email-address"
+  //         style={{ color: COLORS.gray1, width: "80%" }}
+  //       />
+  //     </View>
+  //   );
+  // }
+
+    function emailInput() {
     return (
-      <View style={styles.formContainer}>
-        <icons.ionicons
-          name="mail-outline"
-          size={25}
-          style={styles.textInputIcon}
-        />
 
         <TextInput
-          placeholder="Email"
+          label="Email"
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
-          style={{ color: COLORS.gray1, width: "80%" }}
+          underlineColor="transparent"
+          activeUnderlineColor="black"
+          left={<TextInput.Icon icon="email"/>}
+          style={styles.formContainer}
         />
-      </View>
+        
     );
   }
 
+  // function passwordInput() {
+  //   return (
+  //     <View style={styles.formContainer}>
+  //       <View style={styles.textInputIcon}>
+  //         <icons.ionicons name="lock-closed-outline" size={25} />
+  //       </View>
+
+  //       <TextInput
+  //         placeholder="Password"
+  //         value={password}
+  //         onChangeText={setPassword}
+  //         secureTextEntry={!passwordVisible}
+  //         keyboardType={passwordVisible ? "visible-password" : "default"}
+  //         style={{ color: COLORS.gray1, width: "80%" }}
+  //       />
+  //     </View>
+  //   );
+  // }
+
   function passwordInput() {
     return (
-      <View style={styles.formContainer}>
-        <View style={styles.textInputIcon}>
-          <icons.ionicons name="lock-closed-outline" size={25} />
-        </View>
 
         <TextInput
-          placeholder="Password"
+          label="Password"
           value={password}
           onChangeText={setPassword}
+          underlineColor="transparent"
+          activeUnderlineColor="black"
+          left={<TextInput.Icon icon="lock"/>}
+          right={<TextInput.Icon icon={passwordVisible ? "eye-off" : "eye"} forceTextInputFocus={false} onPress={() =>
+            passwordVisible
+              ? setPasswordVisible(false)
+              : setPasswordVisible(true)
+          }/>}
           secureTextEntry={!passwordVisible}
           keyboardType={passwordVisible ? "visible-password" : "default"}
-          style={{ color: COLORS.gray1, width: "80%" }}
+          style={styles.formContainer}
         />
-      </View>
     );
   }
 
@@ -125,7 +175,7 @@ const SignIn = ({navigation }) => {
             backgroundColor: COLORS.primary,
             borderRadius: 0,
           }}
-          onPress={() => navigation.navigate("Home")}
+          onPress={result}
         >
           <Text
             style={{
@@ -140,15 +190,34 @@ const SignIn = ({navigation }) => {
     );
   }
 
+  function result(){
+    if(signInAuth.validation(email,password)){
+      navigation.reset({
+        index: 0,
+        routes: [
+          {
+            name: 'Home',
+          }, 
+        ],
+      })
+    }else{
+      console.log("Form NOT completed / WRONG email or password")
+    }
+    
+  
+    // <HomeScreen email="admin@gmail.com" password="12345678"/>
+
+  }
+
   function createAcc() {
     return (
       <View style={{ marginTop: 20 }}>
         <TouchableOpacity>
           <Text
-            onPress={() => console.log("Create account")}
+            onPress={() => navigation.navigate("SignUp")}
             style={{ color: COLORS.white, ...FONTS.h3 }}
           >
-            Create an account
+            Don't have an account?
           </Text>
         </TouchableOpacity>
       </View>
@@ -156,16 +225,16 @@ const SignIn = ({navigation }) => {
   }
 
   return (
-    <ScrollView style={{ backgroundColor: COLORS.black }} >
+    <ScrollView style={{ backgroundColor: COLORS.black }}>
       {backBtn()}
       <View style={styles.container}>
-        <View style={{ alignItems: "center"}}>
+        <View style={{ alignItems: "center" }}>
           {signInTitle()}
-          <View style={{height:200}}>
+          <View style={{ height: 200 }}>
             <Image
               source={AppIcon}
               resizeMode="contain"
-              style={{ width: 400, marginTop:-150}}
+              style={{ width: 400, marginTop: -150 }}
             />
           </View>
           {emailInput()}
@@ -173,23 +242,26 @@ const SignIn = ({navigation }) => {
           {passwordInput()}
         </View>
 
-        <View style={styles.passwordEye}>
+        {/* <TouchableOpacity
+          style={styles.passwordEye}
+          onPress={() =>
+            passwordVisible
+              ? setPasswordVisible(false)
+              : setPasswordVisible(true)
+          }
+        >
           <icons.ionicons
             name={passwordVisible ? "eye-off" : "eye"}
             size={25}
             color="black"
-            onPress={() =>
-              passwordVisible
-                ? setPasswordVisible(false)
-                : setPasswordVisible(true)
-            }
           />
-        </View>
+        </TouchableOpacity> */}
 
         {forgotPassword()}
         <View style={{ alignItems: "center" }}>
           {signInBtn()}
           {createAcc()}
+
         </View>
       </View>
     </ScrollView>
@@ -207,15 +279,15 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     width: "80%",
-    paddingHorizontal: 10,
+    //paddingHorizontal: 10,
     marginVertical: 5,
     backgroundColor: "white",
-    height: 50,
-    flexDirection: "row",
+    height: 55,
+    //flexDirection: "row",
 
-    borderColor: "#e8e8e8",
-    borderWidth: 1,
-    borderRadius: 10,
+    //borderColor: "#e8e8e8",
+    //borderWidth: 1,
+    //borderRadius: 10,
   },
   textInputIcon: {
     marginRight: 5,
