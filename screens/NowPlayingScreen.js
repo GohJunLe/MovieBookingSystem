@@ -1,9 +1,6 @@
 import NowPlaying from "../components/NowPlaying";
 import SearchBar from "../components/SearchBar";
-import {
-  StyleSheet,
-  SafeAreaView
-} from "react-native";
+import {SafeAreaView} from "react-native";
 import React, {useState} from "react";
 import {COLORS} from "../constants";
 import {movie} from "../constants/dummy";
