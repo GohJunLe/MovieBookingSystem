@@ -8,6 +8,7 @@ import {
     icons
   } from "../constants";
   import {AppIcon} from "../components";
+  import {ImageLoader} from "../components/GetStartAnimated"
 
 const GetStarted = ({ navigation }) => {
   const {
@@ -46,7 +47,7 @@ const GetStarted = ({ navigation }) => {
         </View> */}
         <View style={{ flex: 1}}>
           <View style={logoContainer}>
-            <Image source={AppIcon} />
+            <ImageLoader source={AppIcon}/>
           </View>
         </View>
         <View style={{ flex: 1 }}>
@@ -60,7 +61,7 @@ const GetStarted = ({ navigation }) => {
           </View>
           <View style={actionsContainer}>
             <TouchableNativeFeedback 
-            onPress={() => navigation.navigate("SignIn")}
+            onPress={() => navigation.push("SignIn")}
             background={TouchableNativeFeedback.Ripple('black')}>
                 <View style={{backgroundColor:COLORS.primary}}>
               <Text style={{color: COLORS.black,textAlign:"center",...FONTS.h2,paddingVertical:10, borderRadius: 5}}>
@@ -68,7 +69,7 @@ const GetStarted = ({ navigation }) => {
               </TouchableNativeFeedback>
 
             <TouchableNativeFeedback
-            onPress={() => console.log("Forgot password")}>
+            onPress={() => navigation.push("SignUp")}>
               <Text
             style={{ color: COLORS.white, textAlign:"center", ...FONTS.h2, paddingVertical:10}}
           >
