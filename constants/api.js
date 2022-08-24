@@ -1,3 +1,4 @@
+
 const apiKey = "024d69b581633d457ac58359146c43f6";
 const language="en-US";
 
@@ -20,3 +21,4 @@ function getPopularResp(){
 }
 
 export default {getResp, getSimilarResp, getLanguageList,getPopularResp};
+
