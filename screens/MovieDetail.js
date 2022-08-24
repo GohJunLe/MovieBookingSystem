@@ -8,17 +8,17 @@ import {
   FlatList,
   TouchableOpacity,
   Dimensions,
+  Share,
 } from "react-native";
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-//import {TMDB_API} from '@env';
 
 import LinearGradient from "react-native-linear-gradient";
-import { COLORS, SIZES, FONTS, icons } from "../constants";
-import { getResp, getSimilarResp, getCastCrew } from "../constants/api";
+import { COLORS, SIZES, FONTS, icons, api } from "../constants";
 
 import YoutubePlayer from "react-native-youtube-iframe";
-import { loadPartialConfig } from "@babel/core";
+// import { loadPartialConfig } from "@babel/core";
+import { Card } from 'react-native-paper';
 import { Loading } from "../components";
 
 const MovieDetail = ({ route, navigation }) => {
@@ -26,42 +26,46 @@ const MovieDetail = ({ route, navigation }) => {
   const [data, setData] = useState({
     movieDetails: [],
     similarMovies: [],
-    castCrew: [],
+    languageList: [],
   });
-  const apiKey = "024d69b581633d457ac58359146c43f6";
 
   const [isLoading, setLoading] = useState(true);
   const apiReq = useCallback(async () => {
-    const [resp, similarResp, castCrew] = await Promise.all([
+    const [resp, similarResp, languageList] = await Promise.all([
       axios.get(
-        getResp(selectedMovie)
+        api.getResp(selectedMovie)
       ),
       axios.get(
-        getSimilarResp(selectedMovie)
+        api.getSimilarResp(selectedMovie)
       ),
       axios.get(
-        getCastCrew(selectedMovie)
+        api.getLanguageList()
       ),
     ]).finally(() => setLoading(false));
     setData({
       movieDetails: resp.data,
       similarMovies: similarResp.data.results,
-      castCrew: castCrew.data.cast,
+      languageList: languageList.data,
     });
   }, [selectedMovie]);
 
   useEffect(() => {
+    const controller = new AbortController();
+    const signal = controller.signal;
+
     apiReq();
+
+    return () => controller.abort();
   }, [apiReq]);
 
-  console.log("test","test")
+  console.log("test", "test");
 
   let hours = Math.trunc(data.movieDetails.runtime / 60);
   let minutes = data.movieDetails.runtime % 60;
 
   const [isPlay, setPlay] = useState(false);
   const [test, setTest] = useState(0);
-  const [pos,setPos]=useState(0);
+  const [pos, setPos] = useState(0);
 
   function renderHeaderBar() {
     return (
@@ -84,7 +88,7 @@ const MovieDetail = ({ route, navigation }) => {
               width: 50,
               height: 50,
               borderRadius: 20,
-              backgroundColor: COLORS.transparentBlack,
+              backgroundColor: COLORS.transparentRed,
             }}
             onPress={() => navigation.goBack()}
           >
@@ -108,9 +112,9 @@ const MovieDetail = ({ route, navigation }) => {
               height: 50,
               borderRadius: 20,
               textAlign: "Right",
-              backgroundColor: COLORS.transparentBlack,
+              backgroundColor: COLORS.transparentRed,
             }}
-            onPress={() => console.log("Shared")}
+            onPress={onShare}
           >
             <Image
               source={icons.upload}
@@ -126,55 +130,60 @@ const MovieDetail = ({ route, navigation }) => {
     );
   }
 
+  async function onShare(){
+      try {
+        const result = await Share.share({
+          title:`${data.movieDetails.title}`,
+           message: `https://blogs.mtdv.me/blog/posts/mycinemabookingapp`
+        });
+
+      } catch (error) {
+        alert(error.message);
+      }
+  }
+
   function renderHeaderSection() {
     return (
-      <ImageBackground
-        source={{
-          uri: `https://image.tmdb.org/t/p/w500${data.movieDetails.poster_path}`,
-        }}
-        resizeMode="cover"
+      <>
+      {/* {renderHeaderBar()} */}
+      <LinearGradient
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
+      colors={["transparent", "black"]}
+      style={{
+        width: "100%",
+        height: 300,
+        alignItems: "center",
+        justifyContent: "flex-end",
+      }}
+    >
+        <Image
+          source={{
+            uri: `https://image.tmdb.org/t/p/w500${data.movieDetails.poster_path}`,
+         }}
+          resizeMode="contain"
+         style={{
+            width: 200,
+            alignSelf: "center",
+            paddingVertical: "40%",
+            // borderWidth:1,
+            // borderColor: "white",
+           borderRadius:10
+          }}
+        />
+
+      {/* name */}
+      <Text
         style={{
-          width: "100%",
-          height: SIZES.height < 700 ? SIZES.height * 0.6 : SIZES.height * 0.7,
+          color: COLORS.white,
+          ...FONTS.h1,
+          marginTop: SIZES.base,
         }}
       >
-        <View
-          style={{
-            flex: 1,
-          }}
-        >
-          {/* {renderHeaderBar()} */}
-          <View
-            style={{
-              flex: 1,
-              justifyContent: "flex-end",
-            }}
-          >
-            <LinearGradient
-              start={{ x: 0, y: 0 }}
-              end={{ x: 0, y: 1 }}
-              colors={["transparent", "black"]}
-              style={{
-                width: "100%",
-                height: 150,
-                alignItems: "center",
-                justifyContent: "flex-end",
-              }}
-            >
-              {/* name */}
-              <Text
-                style={{
-                  color: COLORS.white,
-                  ...FONTS.h1,
-                  marginTop: SIZES.base,
-                }}
-              >
-                {data.movieDetails.title}
-              </Text>
-            </LinearGradient>
-          </View>
-        </View>
-      </ImageBackground>
+        {data.movieDetails.title}
+      </Text>
+    </LinearGradient>
+    </>
     );
   }
 
@@ -261,6 +270,14 @@ const MovieDetail = ({ route, navigation }) => {
     }
   }
 
+  function movieTimeSlot(){
+    return(
+      <View>
+        <Text></Text>
+      </View>
+    );
+  }
+
   function renderMovieDetail() {
     return (
       <View
@@ -277,35 +294,54 @@ const MovieDetail = ({ route, navigation }) => {
         }}
       >
         {/* content */}
-        <View onLayout={(event) => {
-              const layout = event.nativeEvent.layout;
-              setTest(layout.y+test);
-              console.log("y2:", test);
-            }}>
+        <View
+          onLayout={(event) => {
+            const layout = event.nativeEvent.layout;
+            setTest(layout.y + test);
+            console.log("y2:", test);
+          }}
+        >
           <View style={{ flex: 1, flexDirection: "row" }}>
             {/* release date */}
-            <View style={{ flex: 1 }}>
-              <Text style={{ color: COLORS.white, ...FONTS.h3 }}>
-                Release date:
+            <View style={{ flex: 1}}>
+            <Text style={{ textAlign: "center" }}>
+              <Text style={{ color: COLORS.white, ...FONTS.h3}}>
+                Release date{"\n"}
               </Text>
               <Text style={{ color: COLORS.lightGray, ...FONTS.body3 }}>
                 {data.movieDetails.release_date}
               </Text>
+              </Text>
+              
             </View>
 
             {/* duration */}
-            <View style={{ flex: 1 }}>
-              <Text style={{ textAlign: "right" }}>
+            <View style={{ flex: 1}}>
+              <Text style={{ textAlign: "center" }}>
                 <Text style={{ color: COLORS.white, ...FONTS.h3 }}>
-                  Duration:{"\n"}
+                  Duration{"\n"}
                 </Text>
                 <Text style={{ color: COLORS.lightGray, ...FONTS.body3 }}>
                   {`${hours} hr ${minutes} min`}
                 </Text>
               </Text>
             </View>
+
+            {/* language */}
+            <View style={{ flex: 1}}>
+              <Text style={{ textAlign: "center" }}>
+                <Text style={{ color: COLORS.white, ...FONTS.h3 }}>
+                  Language{"\n"}
+                </Text>
+                <Text style={{ color: COLORS.lightGray, ...FONTS.body3 }}>
+                  {languageConvert(data.movieDetails.original_language)}
+                </Text>
+              </Text>
+            </View>
           </View>
           <Text></Text>
+
+          {/* {movieTimeSlot()} */}
 
           {/* overview */}
           <View
@@ -327,8 +363,8 @@ const MovieDetail = ({ route, navigation }) => {
             }}
             onLayout={(event) => {
               const layout = event.nativeEvent.layout;
-              setTest(layout.y+test);
-              console.log("y3",test);
+              setTest(layout.y + test);
+              console.log("y3", test);
             }}
           >
             <Text style={{ color: COLORS.white, ...FONTS.h3 }}>Trailer</Text>
@@ -344,6 +380,14 @@ const MovieDetail = ({ route, navigation }) => {
     );
   }
 
+  function languageConvert(original_language){
+    for(var i=0;i<data.languageList.length;i++){
+      if(data.languageList[i].iso_639_1==original_language)
+        return data.languageList[i].english_name;
+    }
+    return original_language;
+  }
+
   function getTrailer() {
     if (data.movieDetails.videos != null) {
       const video = data.movieDetails.videos.results;
@@ -355,6 +399,81 @@ const MovieDetail = ({ route, navigation }) => {
     }
   }
 
+  function renderRecommendations(){
+    return(
+      <View>
+        {/* header */}
+        <View
+          style={{
+            flexDirection: "row",
+            paddingHorizontal: SIZES.padding,
+            alignItems: "center",
+          }}
+        >
+          <Text style={{ flex: 1, color: COLORS.white, ...FONTS.h2 }}>
+          You may also like
+          </Text>
+          <Image
+            source={icons.right_arrow}
+            style={{ height: 20, tintColor: COLORS.primary, width: 10 }}
+          />
+        </View>
+        {/* list */}
+        <FlatList
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{
+            marginTop: SIZES.padding,
+          }}
+          data={data.similarMovies}
+          keyExtractor={(item) => `${item.id}`}
+          renderItem={({ item, index }) => {
+            return (
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate("MovieDetail", { selectedMovie: item.id })
+                }
+              >
+                <View
+                  style={{
+                    marginLeft: index == 0 ? SIZES.padding : 20,
+                    marginRight:
+                      index == data.similarMovies.length - 1
+                        ? SIZES.padding
+                        : 0,
+                  }}
+                >
+                  <Loading size="large" Loading={isLoading} style={{position:"absolute",alignSelf:"center",top:"30%"}}/>
+                  {/* thumbnail */}
+                  <Image
+                    source={{uri: "https://image.tmdb.org/t/p/w500"+item.poster_path,}}
+                    resizeMode="cover"
+                    style={{
+                      width: SIZES.width / 3,
+                      height: SIZES.width / 3 + 60,
+                      borderRadius: 20,
+                    }}
+                  />
+                  {/* name */}
+                  <Text
+                    style={{
+                      color: COLORS.white,
+                      marginTop: SIZES.base,
+                      ...FONTS.h4,
+                      width: SIZES.width / 3,
+                    }}
+                  >
+                    {item.title}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            );
+          }}
+        />
+      </View>
+    );
+  }
+
   function bookNowBtn() {
     return (
       <View>
@@ -363,7 +482,7 @@ const MovieDetail = ({ route, navigation }) => {
             height: 60,
             width: "90%",
             alignItems: "center",
-            alignSelf:"center",
+            alignSelf: "center",
             justifyContent: "center",
             marginBottom: Platform.OS === "ios" ? SIZES.padding * 2 : 0,
             backgroundColor: COLORS.primary,
@@ -371,60 +490,75 @@ const MovieDetail = ({ route, navigation }) => {
             position: "absolute",
             bottom: 0,
           }}
-          onPress={()=>console.log("book")}
+          onPress={() => console.log("book")}
         >
-          <View style={{flexDirection:"row"}}>
-          <icons.fontAwesome 
-          name="ticket"
-          color="white"
-          size={30}
-          style={{}}/>
+          <View style={{ flexDirection: "row" }}>
 
-          <Text
-            style={{
-              color: COLORS.white,
-              ...FONTS.h2,
-            }}
-          >
-            Book Now
-          </Text>
+            <Text
+              style={{
+                color: COLORS.white,
+                ...FONTS.h2,
+              }}
+            >
+              Book Now
+            </Text>
           </View>
         </TouchableOpacity>
       </View>
     );
   }
 
-  function loadingScreen(){
-    if(isLoading){
-      return(<Loading
-        size={50}
-        isLoading={isLoading}
-        style={{
-          position: "absolute",
-          alignSelf: "center", 
-          backgroundColor: COLORS.transparentBlack,
-          width: "100%",
-          height: "100%",
-        }}
-      />);
+  function loadingScreen() {
+    if (isLoading) {
+      return (
+        <Loading
+          size={50}
+          isLoading={isLoading}
+          style={{
+            position: "absolute",
+            alignSelf: "center",
+            backgroundColor: COLORS.transparentBlack,
+            width: "100%",
+            height: "100%",
+          }}
+        />
+      );
     }
   }
 
   return (
-    <>
-      <ScrollView
-        //contentContainerStyle={{flex: 3, backgroundColor: COLORS.black }}
-        style={{ backgroundColor: COLORS.black }}
-        onScroll={(event) => setPos(event.nativeEvent.contentOffset.y)}
+    <View>
+      <ImageBackground
+        source={{
+          uri: `https://image.tmdb.org/t/p/w500${data.movieDetails.poster_path}`,
+        }}
+        resizeMode="cover"
+        blurRadius={2}
+        style={{
+          width: "100%",
+        }}
       >
-        {/* poster&name */}
-        {renderHeaderSection()}
-        {/* category&ratings */}
-        {renderCategory()}
+        <ScrollView onScroll={(event) => setPos("1")}>
+          <View style={{ backgroundColor: "transparent", height: 150 }}/>
 
-        {/* themoviedetails */}
-        {renderMovieDetail()}
-      </ScrollView>
+          {/* poster&name */}
+          {renderHeaderSection()}
+         
+          <View style={{ backgroundColor: COLORS.black }}>
+            {/* category&ratings */}
+            {renderCategory()}
+
+            {/* themoviedetails */}
+            {renderMovieDetail()}
+
+             {/* recommend */}
+            {renderRecommendations()}
+
+            <View  style={{ marginVertical:50}}></View>
+           
+          </View>
+        </ScrollView>
+      </ImageBackground>
 
       {/* button */}
       {bookNowBtn()}
@@ -433,7 +567,7 @@ const MovieDetail = ({ route, navigation }) => {
 
       {/* header bar */}
       {renderHeaderBar()}
-    </>
+    </View>
   );
 };
 
