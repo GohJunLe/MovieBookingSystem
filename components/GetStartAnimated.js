@@ -1,27 +1,39 @@
-import React, { useRef, useEffect } from 'react';
-import { Animated, Text, View } from 'react-native';
+import React, { Component } from 'react';
+import { View, StyleSheet, Animated } from 'react-native';
 
-const FadeInView = (props) => {
-  const fadeAnim = useRef(new Animated.Value(0)).current  // Initial value for opacity: 0
+export class ImageLoader extends Component {
+  state = {
+    opacity: new Animated.Value(0),
+  }
 
-  useEffect(() => {
-    Animated.timing(
-      fadeAnim,
-      {
-        toValue: 1,
-        duration: 10000,
-      }
-    ).start();
-  }, [fadeAnim])
+  onLoad = () => {
+    Animated.timing(this.state.opacity, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  }
 
-  return (
-    <Animated.View                 // Special animatable View
-      style={{
-        ...props.style,
-        opacity: fadeAnim,         // Bind opacity to animated value
-      }}
-    >
-      {props.children}
-    </Animated.View>
-  );
+  render() {
+    return (
+      <Animated.Image
+        onLoad={this.onLoad}
+        {...this.props}
+        style={[
+          {
+            opacity: this.state.opacity,
+            transform: [
+              {
+                scale: this.state.opacity.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0.85, 1],
+                })
+              },
+            ],
+          },
+          this.props.style,
+        ]}
+      />
+    );
+  }
 }
