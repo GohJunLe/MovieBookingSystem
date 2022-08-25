@@ -6,5 +6,7 @@ import Loading from "./Loading"
 import ComingSoon from "./ComingSoon";
 import NowPlaying from "./NowPlaying";
 import SearchBar from "./SearchBar"
+import Option from "./Option";
+import Options from "./Options";
 
-export { TabIcon, Profiles, ProgressBar ,AppIcon, Loading, ComingSoon, NowPlaying, SearchBar};
+export { TabIcon, Profiles, ProgressBar ,AppIcon, Loading, ComingSoon, NowPlaying, SearchBar, Option, Options};
