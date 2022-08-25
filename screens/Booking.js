@@ -14,6 +14,7 @@ import { COLORS, SIZES, FONTS, icons } from "../constants";
 import {Options} from '../components';
 import moment from 'moment';
 import { LogBox } from 'react-native';
+import DatePicker from 'react-native-modern-datepicker';
 
 LogBox.ignoreLogs(['Animated: `useNativeDriver` was not specified.']);
 
@@ -23,9 +24,39 @@ const Booking = ({ route, navigation }) => {
     const [chosenDay, setChosenDay] = useState(null)
     const [chosenTime, setChosenTime] = useState(null)
     const [chosenLocation, setChosenLocation] = useState(null)
+    const [date, setDate] = useState(new Date())
+    const today = new Date();
+  let currentDate = "";
+  let endDate = "";
+  if (today.getMonth() + 1 < 10) {
+    currentDate =
+      today.getFullYear() +
+      "-0" +
+      (today.getMonth() + 1) +
+      "-" +
+      today.getDate();
+    endDate = 
+    today.getFullYear() +
+    "-0" +
+    (today.getMonth() + 2) +
+    "-" +
+    today.getDate();
 
-    const days = ["Today", "Tomorrow", moment().add(2, 'days').format('ddd, MMM D')]
-    const times = ["17:00", "18:00", "19:00"]
+  } else {
+    currentDate =
+      today.getFullYear() +
+      "-" +
+      (today.getMonth() + 1) +
+      "-" +
+      today.getDate();
+    endDate =
+      today.getFullYear() +
+      "-" +
+      (today.getMonth() + 2) +
+      "-" +
+      today.getDate();
+  }
+    const times = ["10:00", "14:00", "18:00", "22:00"]
     const locations = ["1st Avenue", "Kepong", "Rawang"]
 
     return(
@@ -63,16 +94,26 @@ const Booking = ({ route, navigation }) => {
               </Text>
               </View>
 
-              <View >     
-              <Text style={{color: COLORS.white, ...FONTS.h3,}}>
-                Day
-                </Text>        
-              <Options           
-                values={days}
-                chosen={chosenDay}
-                onChoose={onChooseDay}
-                /> 
-              </View>
+              <View>
+                <Text style={{color: COLORS.white, ...FONTS.h3,}}>
+                  Day
+                </Text> 
+              <DatePicker 
+              onSelectedChange={setDate} 
+              options={{
+                backgroundColor: COLORS.transparentBlack,
+                textHeaderColor: '#FFA25B',
+                textDefaultColor: '#F6E7C1',
+                selectedTextColor: '#fff',
+                mainColor: COLORS.primary,
+                textSecondaryColor: '#D6C7A1',
+              }}
+              current = {currentDate}
+              minimumDate={currentDate}
+              maximumDate={endDate}
+              mode="calendar"
+              />
+              </View>    
               <View>
                 <Text style={{color: COLORS.white, ...FONTS.h3,}}>
                   Date
