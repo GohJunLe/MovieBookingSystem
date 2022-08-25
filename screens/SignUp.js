@@ -9,12 +9,14 @@ import {
   TouchableOpacity,
   Button,
   Keyboard,
+  Alert,
 } from "react-native";
 import React from "react";
-import { TextInput } from "react-native-gesture-handler";
 import { COLORS, SIZES, FONTS, icons } from "../constants";
 import { AppIcon } from "../components";
 import signUpAuth from "../accountAuth/signUp_auth";
+import DeviceStorage from "../database/deviceStorage";
+import { HelperText, TextInput, IconButton } from "react-native-paper";
 
 const SignUp = ({ navigation }) => {
   const [email, setEmail] = React.useState("");
@@ -64,39 +66,79 @@ const SignUp = ({ navigation }) => {
 
   function emailInput() {
     return (
-      <View style={styles.formContainer}>
-        <icons.ionicons
-          name="mail-outline"
-          size={25}
-          style={styles.textInputIcon}
-        />
+      // <View style={styles.formContainer}>
+      //   <icons.ionicons
+      //     name="mail-outline"
+      //     size={25}
+      //     style={styles.textInputIcon}
+      //   />
 
-        <TextInput
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          style={{ color: COLORS.gray1, width: "80%" }}
-        />
-      </View>
+      //   <TextInput
+      //     placeholder="Email"
+      //     value={email}
+      //     onChangeText={setEmail}
+      //     keyboardType="email-address"
+      //     style={{ color: COLORS.gray1, width: "80%" }}
+      //   />
+      // </View>
+      <TextInput
+        label="Email"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+        underlineColor="transparent"
+        activeUnderlineColor="black"
+        left={<TextInput.Icon icon="email" />}
+        style={styles.formContainer}
+      />
     );
   }
 
   function passwordInput() {
     return (
-      <View style={styles.formContainer}>
-        <View style={styles.textInputIcon}>
-          <icons.ionicons name="lock-closed-outline" size={25} />
+      <View style={{width: "100%"}}>
+        <View style={{alignItems:"center" }}>
+          <TextInput
+            label="Password"
+            value={password}
+            onChangeText={setPassword}
+            underlineColor="transparent"
+            activeUnderlineColor="black"
+            left={<TextInput.Icon icon="lock" />}
+            right={
+              <TextInput.Icon
+                icon={passwordVisible ? "eye-off" : "eye"}
+                forceTextInputFocus={false}
+                onPress={() =>
+                  passwordVisible
+                    ? setPasswordVisible(false)
+                    : setPasswordVisible(true)
+                }
+              />
+            }
+            secureTextEntry={!passwordVisible}
+            keyboardType={passwordVisible ? "visible-password" : "default"}
+            style={styles.formContainer}
+          />
         </View>
-
-        <TextInput
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry={!passwordVisible}
-          keyboardType={passwordVisible ? "visible-password" : "default"}
-          style={{ color: COLORS.gray1, width: "80%" }}
-        />
+        <View style={{width:"80%",alignSelf:"center",height:20}}>
+          <IconButton
+            icon="information"
+            color={COLORS.white}
+            size={20}
+            onPress={() => Alert.alert(
+              "Password format",
+              "Password must contain at least\n-1 lowercase alphabetical character\n-1 uppercase alphabetical character\n-1 numeric character\n-8 characters up to 50",
+              [
+                {
+                  text: "OK",
+                  style: "default",
+                },
+              ]
+            )}
+            style={{ alignSelf: "flex-end",marginTop:0}}
+          />
+        </View>
       </View>
     );
   }
@@ -105,6 +147,7 @@ const SignUp = ({ navigation }) => {
     return (
       <View style={{ width: "80%", marginTop: 20 }}>
         <TouchableOpacity
+          onPress={result}
           style={{
             height: 60,
             alignItems: "center",
@@ -112,7 +155,6 @@ const SignUp = ({ navigation }) => {
             backgroundColor: COLORS.primary,
             borderRadius: 0,
           }}
-          onPress={result}
         >
           <Text
             style={{
@@ -129,20 +171,27 @@ const SignUp = ({ navigation }) => {
 
   function result() {
     if (signUpAuth.validation(email, password)) {
+      DeviceStorage.saveData("signIn2", "false");
       navigation.navigate("SignIn");
     } else {
-      console.log("Form NOT completed / INVALID email or password");
+      Alert.alert(
+        "Form NOT completed / INVALID email or password",
+        "Email must have '@' and '.'\nPassword must follow the password format(Click the info button under the eye)",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+        ]
+      );
     }
   }
 
   function signIn() {
     return (
       <View style={{ marginTop: 20 }}>
-        <TouchableOpacity>
-          <Text
-            onPress={() => navigation.navigate("SignIn")}
-            style={{ color: COLORS.white, ...FONTS.h3 }}
-          >
+        <TouchableOpacity onPress={() => navigation.navigate("SignIn")}>
+          <Text style={{ color: COLORS.white, ...FONTS.h3 }}>
             Already have an account?
           </Text>
         </TouchableOpacity>
@@ -171,22 +220,6 @@ const SignUp = ({ navigation }) => {
 
           {signIn()}
         </View>
-
-        <TouchableOpacity
-          style={styles.passwordEye}
-          onPress={() =>
-            passwordVisible
-              ? setPasswordVisible(false)
-              : setPasswordVisible(true)
-          }
-        >
-          <icons.ionicons
-            name={passwordVisible ? "eye-off" : "eye"}
-            size={25}
-            color="black"
-          />
-        </TouchableOpacity>
-
       </View>
     </ScrollView>
   );
@@ -203,15 +236,9 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     width: "80%",
-    paddingHorizontal: 10,
     marginVertical: 5,
     backgroundColor: "white",
     height: 50,
-    flexDirection: "row",
-
-    borderColor: "#e8e8e8",
-    borderWidth: 1,
-    borderRadius: 10,
   },
   textInputIcon: {
     marginRight: 5,
