@@ -1,5 +1,5 @@
 import React from "react";
-import { MovieDetail, SignIn,SignUp, GetStarted } from "./screens";
+import { MovieDetail, SignIn,SignUp, GetStarted, Booking } from "./screens";
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
 import Tabs from "./navigation/tabs";
@@ -32,6 +32,8 @@ const App = () => {
         <Stack.Screen name="SignIn" component={SignIn} />
 
         <Stack.Screen name="SignUp" component={SignUp} />
+          
+        <Stack.Screen name="Booking" component={Booking} />
       </Stack.Navigator>
       
     </NavigationContainer>
