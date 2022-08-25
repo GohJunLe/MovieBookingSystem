@@ -1,51 +1,103 @@
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
   Image,
   TouchableOpacity,
+  TouchableHighlight,
   SafeAreaView,
   FlatList,
   ScrollView,
-  TouchableWithoutFeedback,
   ImageBackground,
   Animated,
   Dimensions,
-  RefreshControl
+  RefreshControl,
 } from "react-native";
 import { color } from "react-native-reanimated";
 import { Colors } from "react-native/Libraries/NewAppScreen";
 // import { TouchableWithoutFeedback } from "react-native-gesture-handler";
-import {
-  icons,
-  images,
-  theme,
-  COLORS,
-  SIZES,
-  FONTS,
-} from "../constants";
-import {movie} from "../constants/dummy";
+import { icons, images, theme, COLORS, SIZES, FONTS, api } from "../constants";
+import { movie } from "../constants";
 import { Profiles, AppIcon, Loading } from "../components";
+import axios from "axios";
 const Home = ({ navigation }) => {
   const newSeasonScrollX = React.useRef(new Animated.Value(0)).current;
 
-  const fetchData=movie("https://api.themoviedb.org/3/movie/popular?api_key=024d69b581633d457ac58359146c43f6");
-  const popularMovie=fetchData.data;
-  const isLoading=fetchData.isLoading;
+  const fetchData = movie(
+    "https://api.themoviedb.org/3/movie/popular?api_key=024d69b581633d457ac58359146c43f6"
+  );
+  const popularMovie = fetchData?.data;
+  const isLoading = fetchData.isLoading;
 
-  const fetchData2=movie("https://api.themoviedb.org/3/movie/now_playing?api_key=024d69b581633d457ac58359146c43f6");
-  const nowPlayingMovie=fetchData2.data;
-  const isLoading2=fetchData2.isLoading;
+  // const [popularMovie, setPopularMovie] = useState([]);
+  // const [isLoading, setLoading] = useState(true);
+  // const apiReq = useCallback(async () => {
+  //   const [resp] = await Promise.all([
+  //     axios.get(
+  //       api.getPopularResp()
+  //     ),
+  //   ]).finally(() => setLoading(false));
+  //   setPopularMovie(resp.data);
+  // }, []);
 
-  var top10Popular=[];
+  // useEffect(() => {
+  //   apiReq();
+  // }, [apiReq]);
+
+  const fetchData2 = movie(
+    "https://api.themoviedb.org/3/movie/now_playing?api_key=024d69b581633d457ac58359146c43f6"
+  );
+  const nowPlayingMovie = fetchData2?.data;
+  const isLoading2 = fetchData2.isLoading;
+
+  const today = new Date();
+  let currentDate = "";
+  let nextYear="";
+  if (today.getMonth() + 1 < 10) {
+    currentDate =
+      today.getFullYear() +
+      "-0" +
+      (today.getMonth() + 1) +
+      "-" +
+      today.getDate();
+      nextYear =
+      (today.getFullYear()+1) +
+      "-0" +
+      (today.getMonth() + 1) +
+      "-" +
+      today.getDate();
+
+  } else {
+    currentDate =
+      today.getFullYear() +
+      "-" +
+      (today.getMonth() + 1) +
+      "-" +
+      today.getDate();
+      nextYear =
+      (today.getFullYear()+1) +
+      "-" +
+      (today.getMonth() + 1) +
+      "-" +
+      today.getDate();
+  }
+
+  const fetchData3 = movie(
+    `https://api.themoviedb.org/3/discover/movie?api_key=024d69b581633d457ac58359146c43f6&language=en-US&sort_by=popularity.desc&include_video=true&primary_release_date.gte=${currentDate}&primary_release_date.lte=${nextYear}`
+  );
+
+  const comingSoonMovie = fetchData3?.data;
+  const isLoading3 = fetchData3.isLoading;
+
+  var top10Popular = [];
   popularMovie?.results?.map((item, index) => {
-    if(index<10){
+    if (index < 10) {
       top10Popular.push(item);
     }
-  })
-  console.log("tt")
+  });
+
   function renderHeader() {
-    const windowWidth = Dimensions.get('window').width;
+    const windowWidth = Dimensions.get("window").width;
     return (
       <View
         style={{
@@ -77,7 +129,7 @@ const Home = ({ navigation }) => {
           />
         </TouchableOpacity>
         {/* cinema logo */}
-        <TouchableOpacity
+        <View
           style={{
             alignItems: "center",
             justifyContent: "center",
@@ -90,26 +142,26 @@ const Home = ({ navigation }) => {
             resizeMode="contain"
             style={{
               width: 200,
-              marginTop:5,
-              marginRight:(windowWidth/2+100)
+              marginTop: 5,
+              marginRight: windowWidth / 2 + 100,
               // marginRight:50
             }}
           />
-        </TouchableOpacity>
+        </View>
       </View>
     );
   }
 
   function renderPopularSection() {
     return (
-      
       <Animated.FlatList
         horizontal
         pagingEnabled
         snapToAlignment="center"
         snapToInterval={SIZES.width}
-        scrollEventThrottle={16}
+        //scrollEventThrottle={16}
         decelerationRate={0}
+        showsHorizontalScrollIndicator={false}
         contentContainerStyle={{
           marginTop: SIZES.radius,
         }}
@@ -121,7 +173,7 @@ const Home = ({ navigation }) => {
         )}
         renderItem={({ item, index }) => {
           return (
-            <TouchableWithoutFeedback
+            <TouchableHighlight
               onPress={() =>
                 navigation.navigate("MovieDetail", { selectedMovie: item.id })
               }
@@ -132,11 +184,21 @@ const Home = ({ navigation }) => {
                   alignItems: "center",
                   justifyContent: "center",
                 }}
-              > 
-               <Loading size="large" isLoading={isLoading} style={{position:"absolute",alignSelf:"center",top:"50%"}}/>
+              >
+                <Loading
+                  size="large"
+                  isLoading={isLoading}
+                  style={{
+                    position: "absolute",
+                    alignSelf: "center",
+                    top: "50%",
+                  }}
+                />
                 <ImageBackground
                   resizeMode="cover"
-                  source={{uri: "https://image.tmdb.org/t/p/w500"+item.poster_path,}}
+                  source={{
+                    uri: "https://image.tmdb.org/t/p/w500" + item.poster_path,
+                  }}
                   style={{
                     width: SIZES.width * 0.85,
                     height: SIZES.width * 0.85,
@@ -150,19 +212,23 @@ const Home = ({ navigation }) => {
                     style={{
                       height: 60,
                       width: "100%",
-                      marginBottom: SIZES.radius,
+                      //marginBottom: SIZES.radius,
                       paddingHorizontal: SIZES.radius,
                       justifyContent: "space-between",
                       flexDirection: "row",
+                      backgroundColor: COLORS.transparentBlack,
+                      //borderRadius:40,
                     }}
                   >
-                    
                     {/* Book Now */}
                     <View
                       style={{
                         flex: 1,
                         flexDirection: "row",
                         alignItems: "center",
+                        // backgroundColor: COLORS.transparentBlack,
+                        // borderRadius:40,
+                        // marginBottom:0
                       }}
                     >
                       <View
@@ -171,34 +237,39 @@ const Home = ({ navigation }) => {
                           justifyContent: "center",
                           width: 40,
                           height: 40,
-                          backgroundColor: COLORS.transparentWhite,
                           borderRadius: 30,
                         }}
                       >
-                        <Image
+                        <icons.fontAwesome
+                          name="ticket"
+                          size={25}
+                          color={COLORS.white}
+                        />
+                        {/* <Image
                           source={icons.play}
                           style={{
                             width: 15,
                             height: 15,
                             tintColor: COLORS.white,
                           }}
-                        />
+                        /> */}
                       </View>
                       <Text
                         style={{
                           marginLeft: SIZES.base,
                           color: COLORS.white,
-                          ...FONTS.h3,
+                          ...FONTS.h2,
+                          textShadowColor: "black",
+                          width: "80%",
                         }}
                       >
-                        Book Now
+                        {item.title}
                       </Text>
                     </View>
-
                   </View>
                 </ImageBackground>
               </View>
-            </TouchableWithoutFeedback>
+            </TouchableHighlight>
           );
         }}
       />
@@ -253,7 +324,7 @@ const Home = ({ navigation }) => {
     );
   }
 
-  function renderContinueWatchingSection() {
+  function renderNowShowingSection() {
     return (
       <View style={{ marginTop: SIZES.padding }}>
         {/* header */}
@@ -265,7 +336,7 @@ const Home = ({ navigation }) => {
           }}
         >
           <Text style={{ flex: 1, color: COLORS.white, ...FONTS.h2 }}>
-            Now Playing
+            Now Showing
           </Text>
           <Image
             source={icons.right_arrow}
@@ -279,11 +350,11 @@ const Home = ({ navigation }) => {
           contentContainerStyle={{
             marginTop: SIZES.padding,
           }}
-          data={nowPlayingMovie.results}
+          data={nowPlayingMovie?.results}
           keyExtractor={(item) => `${item.id}`}
           renderItem={({ item, index }) => {
             return (
-              <TouchableWithoutFeedback
+              <TouchableHighlight
                 onPress={() =>
                   navigation.navigate("MovieDetail", { selectedMovie: item.id })
                 }
@@ -297,10 +368,20 @@ const Home = ({ navigation }) => {
                         : 0,
                   }}
                 >
-                  <Loading size="large" Loading={isLoading} style={{position:"absolute",alignSelf:"center",top:"30%"}}/>
+                  <Loading
+                    size="large"
+                    isLoading={!isLoading2}
+                    style={{
+                      position: "absolute",
+                      alignSelf: "center",
+                      top: "30%",
+                    }}
+                  />
                   {/* thumbnail */}
                   <Image
-                    source={{uri: "https://image.tmdb.org/t/p/w500"+item.poster_path,}}
+                    source={{
+                      uri: "https://image.tmdb.org/t/p/w500" + item.poster_path,
+                    }}
                     resizeMode="cover"
                     style={{
                       width: SIZES.width / 3,
@@ -314,12 +395,106 @@ const Home = ({ navigation }) => {
                       color: COLORS.white,
                       marginTop: SIZES.base,
                       ...FONTS.h4,
+                      width: SIZES.width / 3,
                     }}
                   >
                     {item.title}
                   </Text>
                 </View>
-              </TouchableWithoutFeedback>
+              </TouchableHighlight>
+            );
+          }}
+        />
+      </View>
+    );
+  }
+
+  function renderComingSoonSection() {
+    return (
+      <View style={{ marginTop: SIZES.padding }}>
+        {/* header */}
+        <View
+          style={{
+            flexDirection: "row",
+            paddingHorizontal: SIZES.padding,
+            alignItems: "center",
+          }}
+        >
+          <Text style={{ flex: 1, color: COLORS.white, ...FONTS.h2 }}>
+            Coming Soon
+          </Text>
+          <Image
+            source={icons.right_arrow}
+            style={{ height: 20, tintColor: COLORS.primary, width: 10 }}
+          />
+        </View>
+        {/* list */}
+        <FlatList
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{
+            marginTop: SIZES.padding,
+          }}
+          data={comingSoonMovie?.results}
+          keyExtractor={(item) => `${item.id}`}
+          renderItem={({ item, index }) => {
+            return (
+              <TouchableHighlight
+                onPress={() =>
+                  navigation.navigate("MovieDetail", { selectedMovie: item.id })
+                }
+              >
+                <View
+                  style={{
+                    marginLeft: index == 0 ? SIZES.padding : 20,
+                    marginRight: index == item.length - 1 ? SIZES.padding : 0,
+                  }}
+                >
+                  <Loading
+                    size="large"
+                    isLoading={!isLoading2}
+                    style={{
+                      position: "absolute",
+                      alignSelf: "center",
+                      top: "30%",
+                    }}
+                  />
+
+                  <Loading
+                    size="large"
+                    isLoading={!isLoading2}
+                    style={{
+                      position: "absolute",
+                      alignSelf: "center",
+                      top: "30%",
+                    }}
+                  />
+                  
+                  {/* thumbnail */}
+                  <Image
+                    source={{
+                      uri: "https://image.tmdb.org/t/p/w500" + item.poster_path,
+                    }}
+                    resizeMode="cover"
+                    style={{
+                      width: SIZES.width / 3,
+                      height: SIZES.width / 3 + 60,
+                      borderRadius: 20,
+                    }}
+                  />
+                  {/* name */}
+                  <Text
+                    style={{
+                      color: COLORS.white,
+                      marginTop: SIZES.base,
+                      ...FONTS.h4,
+                      width: SIZES.width / 3,
+                    }}
+                  >
+                    {item.title}
+                  </Text>
+                </View>
+              </TouchableHighlight>
             );
           }}
         />
@@ -328,7 +503,7 @@ const Home = ({ navigation }) => {
   }
 
   return (
-    <SafeAreaView
+    <View
       style={{
         flex: 1,
         backgroundColor: COLORS.black,
@@ -337,16 +512,15 @@ const Home = ({ navigation }) => {
       {/* header */}
       {renderHeader()}
       {/* start of content */}
-      <ScrollView
-        contentContainerStyle={{
-          paddingBottom: 250,
-        }}
-      >
+      <ScrollView>
         {renderPopularSection()}
         {renderDots()}
-        {renderContinueWatchingSection()}
+        <View style={{ height: 15 }}></View>
+        {renderNowShowingSection()}
+        <View style={{ height: 15 }}></View>
+        {renderComingSoonSection()}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
