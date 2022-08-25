@@ -490,7 +490,9 @@ const MovieDetail = ({ route, navigation }) => {
             position: "absolute",
             bottom: 0,
           }}
-          onPress={() => console.log("book")}
+          onPress={() =>
+            navigation.navigate("Booking", { selectedMovie: data?.movieDetails})
+          }  
         >
           <View style={{ flexDirection: "row" }}>
 
