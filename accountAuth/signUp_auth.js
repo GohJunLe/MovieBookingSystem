@@ -20,7 +20,7 @@ function validation(email, password) {
   const emailRegex = new RegExp(
     "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$"
   );
-  const passwordRegex = new RegExp();
+  const passwordRegex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,50})");
 
   let emailToken = false;
   let passwordToken = false;
@@ -29,7 +29,7 @@ function validation(email, password) {
     emailToken = true;
   }
 
-  if (password.length > 7 && password.length < 50 && password.length != 0) {
+  if (passwordRegex.test(password) && password.length != 0) {
     passwordToken = true;
   }
 
