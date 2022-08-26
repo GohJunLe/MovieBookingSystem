@@ -10,7 +10,7 @@ import {
   StyleSheet,
   Alert
 } from 'react-native';
-import { Constants } from 'expo';
+
 const { width, height } = Dimensions.get('window');
 
 const ROWS = 6;
@@ -132,7 +132,7 @@ export default class App extends Component {
           <Animated.View
             style={[
               {
-                backgroundColor: isSelected ? '#8EF0E7' : '#3493FF'
+                backgroundColor: isSelected ? '#8EF0E7' : '#a9a9a9'
               },
               styles.item,
               {
@@ -156,9 +156,7 @@ export default class App extends Component {
     return (
       <View style={styles.container}>
         <View
-          style={{
-            //height: height * 0.1,
-            //width: width,
+          style={{         
             alignItems: 'center',
             justifyContent: 'space-between',
             flexDirection: 'row'
@@ -229,7 +227,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    //paddingTop: Constants.statusBarHeight,
     backgroundColor: '#ecf0f1'
   },
   item: {
