@@ -11,12 +11,14 @@ import {
   } from "react-native";
 
 import { COLORS, SIZES, FONTS, icons } from "../constants";
-import {Options} from '../components';
+import {Options, Cinema, Seats} from '../components';
+
 import moment from 'moment';
 import { LogBox } from 'react-native';
 import DatePicker from 'react-native-modern-datepicker';
 
 LogBox.ignoreLogs(['Animated: `useNativeDriver` was not specified.']);
+
 
 const Booking = ({ route, navigation }) => {
       
@@ -56,8 +58,10 @@ const Booking = ({ route, navigation }) => {
       "-" +
       today.getDate();
   }
+
+    
     const times = ["10:00", "14:00", "18:00", "22:00"]
-    const locations = ["1st Avenue", "Kepong", "Rawang"]
+    const locations = ["1st Avenue", "Kepong", "Rawang", "Mines"]
 
     return(
       
@@ -96,7 +100,7 @@ const Booking = ({ route, navigation }) => {
 
               <View>
                 <Text style={{color: COLORS.white, ...FONTS.h3,}}>
-                  Day
+                  Date
                 </Text> 
               <DatePicker 
               onSelectedChange={setDate} 
@@ -113,17 +117,17 @@ const Booking = ({ route, navigation }) => {
               maximumDate={endDate}
               mode="calendar"
               />
-              </View>    
+              </View> 
               <View>
                 <Text style={{color: COLORS.white, ...FONTS.h3,}}>
-                  Date
+                  Time
                 </Text>
                 <Options
                 values={times}
                 chosen={chosenTime}
                 onChoose={onChooseTime}
                 />   
-                </View> 
+                </View>  
                 <View>  
                   <Text style={{color: COLORS.white, ...FONTS.h3,}}>
                     Location
@@ -135,28 +139,17 @@ const Booking = ({ route, navigation }) => {
                 onChoose={onChooseLocation}
                 />                             
                 </View>
-                <View>  
-                  <Text style={{color: COLORS.white, ...FONTS.h3,}}>
-                    Location
-                    </Text>                 
-                <Options
                 
-                values={locations}
-                chosen={chosenLocation}
-                onChoose={onChooseLocation}
-                />                             
-                </View>
-                <View>  
+                {<View>
                   <Text style={{color: COLORS.white, ...FONTS.h3,}}>
-                    Location
-                    </Text>                 
-                <Options
-                
-                values={locations}
-                chosen={chosenLocation}
-                onChoose={onChooseLocation}
-                />                             
-                </View>
+                    Seat
+                  </Text>  
+                 
+                  <Seats/>
+                </View>}
+                  
+                  
+                                  
             </ScrollView>                 
                   
           <View>
@@ -212,8 +205,7 @@ const Booking = ({ route, navigation }) => {
       setChosenLocation(location)      
     }
     
-
+    
 };
-
 
 export default Booking
