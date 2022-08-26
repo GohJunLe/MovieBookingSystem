@@ -63,7 +63,6 @@ const Booking = ({ route, navigation }) => {
     const times = ["10:00", "14:00", "18:00", "22:00"]
     const locations = ["1st Avenue", "Kepong", "Rawang", "Mines"]
 
-
     return(
       
         <View

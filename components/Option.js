@@ -6,9 +6,12 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import PropTypes from 'prop-types'
+import { COLORS } from "../constants";
 
-const colorDefault = 'rgba(255, 255, 255, 1)',  
-  colorSelected = 'rgba(103,58,183, 1)';        
+
+// Colors for smooth transition when user chosess an option
+const colorDefault = 'rgba(255, 255, 255, 1)',  // white
+  colorSelected = COLORS.primary;        // purple
 
 export default class Option extends Component {
 

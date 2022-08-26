@@ -9,10 +9,6 @@ const Stack = createStackNavigator();
 
 const App = () => {
 
-  // if(DeviceStorage.getData("signIn")==null){
-   DeviceStorage.saveData("signIn",false)
-  // }
-
   return (
     <NavigationContainer>
       <Stack.Navigator
