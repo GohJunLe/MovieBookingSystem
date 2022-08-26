@@ -17,31 +17,12 @@ import { AppIcon } from "../components";
 import signUpAuth from "../accountAuth/signUp_auth";
 import DeviceStorage from "../database/deviceStorage";
 import { HelperText, TextInput, IconButton } from "react-native-paper";
-import { TrendingUp } from "react-native-feather";
-let SQLite = require('react-native-sqlite-storage');
-var db = SQLite.openDatabase({name: 'MovieBookingSystem'}, null, SQLite.CREATE_IF_NECESSARY,);
 
 const SignUp = ({ navigation }) => {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
 
   const [passwordVisible, setPasswordVisible] = React.useState(false);
-  const [exist, setExist] = React.useState(false);
-
-  React.useEffect(()=>{
-    setExist(false)
-      db.transaction(tx => {
-          tx.executeSql(
-              'SELECT * FROM profile WHERE email = ?',
-              [email],
-              (tx, results) => {
-                if (results.rows.length) {
-                  setExist(true)
-                }
-              }, 
-          )
-      })
-  },[email])
 
   function backBtn() {
     return (
@@ -49,7 +30,6 @@ const SignUp = ({ navigation }) => {
         style={{
           marginTop: Platform.OS === "ios" ? 40 : 20,
           paddingHorizontal: SIZES.padding,
-          position: "absolute"
         }}
       >
         <TouchableOpacity
@@ -191,48 +171,8 @@ const SignUp = ({ navigation }) => {
 
   function result() {
     if (signUpAuth.validation(email, password)) {
-      if(exist){
-        Alert.alert(
-          "Email exist",
-          "This email already exists, please go to the login screen to log in to your account.",
-          [
-            {
-              text: "Cancel",
-              style: "cancel",
-            },
-          ]
-        );
-
-      }else {
-        DeviceStorage.saveData("signIn2", "false");
-        db.transaction(tx => {
-          tx.executeSql(
-            'INSERT INTO profile(email,password) VALUES(?,?)',
-            [email, password], 
-            (tx, results) => {
-              if (results.rowsAffected > 0) {
-                console.log('data inserted successfully');
-                db.transaction(tx => {
-                  tx.executeSql(
-                    'SELECT * FROM profile WHERE email = ?',
-                    [email],
-                    (tx, results) => {
-                      if (results.rows.length) {
-                        console.log(results.rows.raw())
-                      }
-                    },
-                  );
-                });
-              } else {
-                console.log('error in inserting data');
-              }
-            }
-        )
-        })
-        navigation.navigate("SignIn");
-      }
-      
-      
+      DeviceStorage.saveData("signIn2", "false");
+      navigation.navigate("SignIn");
     } else {
       Alert.alert(
         "Form NOT completed / INVALID email or password",
@@ -261,6 +201,7 @@ const SignUp = ({ navigation }) => {
 
   return (
     <ScrollView style={{ backgroundColor: COLORS.black }}>
+      {backBtn()}
       <View style={styles.container}>
         <View style={{ alignItems: "center" }}>
           {signUpTitle()}
@@ -275,12 +216,31 @@ const SignUp = ({ navigation }) => {
 
           {passwordInput()}
 
-          {signUpBtn()}
+          <View style={{ width: "80%", marginTop: 20 }}>
+        <TouchableOpacity
+          onPress={result}
+          style={{
+            height: 60,
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: COLORS.primary,
+            borderRadius: 0,
+          }}
+        >
+          <Text
+            style={{
+              color: COLORS.white,
+              ...FONTS.h2,
+            }}
+          >
+            Sign Up
+          </Text>
+        </TouchableOpacity>
+      </View>
 
           {signIn()}
         </View>
       </View>
-      {backBtn()}
     </ScrollView>
   );
 };
@@ -291,7 +251,6 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   title: {
-    marginTop: 100,
     color: COLORS.white,
     ...FONTS.h1,
   },
