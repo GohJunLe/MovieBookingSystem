@@ -7,35 +7,27 @@ import {
 } from 'react-native';
 import PropTypes from 'prop-types'
 
-
-// Colors for smooth transition when user chosess an option
-const colorDefault = 'rgba(255, 255, 255, 1)',  // white
-  colorSelected = 'rgba(103,58,183, 1)';        // purple
+const colorDefault = 'rgba(255, 255, 255, 1)',  
+  colorSelected = 'rgba(103,58,183, 1)';        
 
 export default class Option extends Component {
 
   static propTypes = {
-    // Value to display
     value: PropTypes.string.isRequired,
-    // Wheter this values was chosen by user or not
     isChosen: PropTypes.bool.isRequired,
-    // Gets called when user choses this value
     onChoose: PropTypes.func.isRequired,
   }
 
   state = {
-    // Animate background color change when value gets chosen
     background: new Animated.Value(0)
   }
 
-  // Animate option selection if value was already chosen not by a user
   componentWillMount() {
     if (this.props.isChosen) {
       this.animateSelect();
     }
   }
 
-  // Handle isChosen prop changes
   componentWillReceiveProps(nextProps) {
     if (!this.props.isChosen && nextProps.isChosen) {
       this.animateSelect();
