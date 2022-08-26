@@ -6,6 +6,8 @@ import SignUp from "./SignUp"
 import NowPlayingScreen from "./NowPlayingScreen"
 import Search from "./Search"
 import UpcomingScreen from "./UpcomingScreen"
+import Profile from "./Profile"
+import TransactionHistory from "./TransactionHistory";
 
 export {
     Home,
@@ -15,5 +17,7 @@ export {
     SignUp,
     NowPlayingScreen,
     Search,
-    UpcomingScreen
+    UpcomingScreen,
+    Profile,
+    TransactionHistory
 };
